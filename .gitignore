@@ -1,6 +1,5 @@
 # Build output
 build/bin/
-build/windows/
 frontend/dist/
 
 # Dependencies
@@ -10,10 +9,7 @@ build/node_modules/
 # Wails generated bindings (regenerated on wails dev/build)
 frontend/wailsjs/
 
-# Go
-go.sum
-
-# ffmpeg binary (distribute separately)
+# ffmpeg binary — не коммитим, вшивается при сборке локально
 ffmpeg.exe
 ffmpeg
 

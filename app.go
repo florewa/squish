@@ -68,11 +68,19 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	// Распаковываем встроенный ffmpeg заранее, пока грузится UI
+	go getFFmpegPath()
 }
 
 // CheckFFmpeg проверяет наличие ffmpeg
 func (a *App) CheckFFmpeg() FFmpegStatus {
-	// 1. Рядом с exe
+	// 1. Встроенный ffmpeg (распакован в кэш)
+	if path, err := getFFmpegPath(); err == nil && path != "" {
+		version := getFFmpegVersion(path)
+		return FFmpegStatus{Found: true, Path: path, Version: version}
+	}
+
+	// 2. Рядом с exe
 	exe, _ := os.Executable()
 	localPath := filepath.Join(filepath.Dir(exe), "ffmpeg")
 	if goruntime.GOOS == "windows" {
@@ -83,9 +91,8 @@ func (a *App) CheckFFmpeg() FFmpegStatus {
 		return FFmpegStatus{Found: true, Path: localPath, Version: version}
 	}
 
-	// 2. В PATH
-	path, err := exec.LookPath("ffmpeg")
-	if err == nil {
+	// 3. В PATH
+	if path, err := exec.LookPath("ffmpeg"); err == nil {
 		version := getFFmpegVersion(path)
 		return FFmpegStatus{Found: true, Path: path, Version: version}
 	}
@@ -390,20 +397,22 @@ func buildTwoPassArgs(item QueueItem, s ConvertSettings, outPath string) ([]stri
 	case "quality":  speed = "0"
 	}
 
-	base := []string{"-y", "-i", item.Path, "-c:v", "libvpx-vp9", "-crf", strconv.Itoa(crf), "-b:v", "0", "-speed", speed}
-
+	base := []string{"-y", "-i", item.Path}
 	if s.StripMetadata {
-		base = append([]string{"-y", "-i", item.Path, "-map_metadata", "-1", "-c:v", "libvpx-vp9", "-crf", strconv.Itoa(crf), "-b:v", "0", "-speed", speed}, base[5:]...)
+		base = append(base, "-map_metadata", "-1")
 	}
+	base = append(base, "-c:v", "libvpx-vp9", "-crf", strconv.Itoa(crf), "-b:v", "0", "-speed", speed)
 
-	pass1 := append(base, "-pass", "1", "-an", "-f", "null")
-	if isWindows() {
-		pass1 = append(pass1, "NUL")
-	} else {
-		pass1 = append(pass1, "/dev/null")
-	}
+	// Копируем base чтобы избежать shared slice между pass1 и pass2
+	pass1 := make([]string, len(base), len(base)+6)
+	copy(pass1, base)
+	nullOut := "/dev/null"
+	if isWindows() { nullOut = "NUL" }
+	pass1 = append(pass1, "-pass", "1", "-an", "-f", "null", nullOut)
 
-	pass2 := append(base, "-pass", "2")
+	pass2 := make([]string, len(base), len(base)+6)
+	copy(pass2, base)
+	pass2 = append(pass2, "-pass", "2")
 	if s.NoAudio {
 		pass2 = append(pass2, "-an")
 	} else {
