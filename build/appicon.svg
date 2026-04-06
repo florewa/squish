@@ -1,0 +1,28 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#5b21b6"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="256" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="256" height="256" rx="60" fill="url(#bg)"/>
+  <!-- Subtle shine -->
+  <rect width="256" height="128" rx="60" fill="url(#shine)"/>
+
+  <!-- Left arrow → pointing right, tip near center -->
+  <path d="M118,128 L70,90 L70,114 L44,114 L44,142 L70,142 L70,166 Z"
+        fill="white" fill-opacity="0.95"/>
+
+  <!-- Right arrow ← pointing left, tip near center -->
+  <path d="M138,128 L186,90 L186,114 L212,114 L212,142 L186,142 L186,166 Z"
+        fill="white" fill-opacity="0.95"/>
+
+  <!-- Center dot — the "squished" result -->
+  <rect x="121" y="116" width="14" height="24" rx="4" fill="white"/>
+</svg>

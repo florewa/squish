@@ -1,0 +1,32 @@
+# Build output
+build/bin/
+build/windows/
+frontend/dist/
+
+# Dependencies
+frontend/node_modules/
+build/node_modules/
+
+# Wails generated bindings (regenerated on wails dev/build)
+frontend/wailsjs/
+
+# Go
+go.sum
+
+# ffmpeg binary (distribute separately)
+ffmpeg.exe
+ffmpeg
+
+# Logs & temp files
+*.log
+ffmpeg2pass*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.user
